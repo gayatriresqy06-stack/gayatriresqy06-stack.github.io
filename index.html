@@ -1,1 +1,238 @@
-<h1>Selamat Sore, hari yang menyenangkan</h1>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jumlah Pernikahan per Provinsi 2016</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #faf9f6;
+      color: #1a1a1a;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .wrap {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 3rem 2rem 4rem;
+    }
+
+    header {
+      margin-bottom: 2rem;
+      border-left: 5px solid #c0392b;
+      padding-left: 1.25rem;
+    }
+
+    .eyebrow {
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #888;
+      margin: 0 0 0.4rem;
+    }
+
+    h1 {
+      font-family: 'Lora', serif;
+      font-size: 2.4rem;
+      font-weight: 700;
+      line-height: 1.1;
+      margin: 0 0 0.6rem;
+      color: #111;
+    }
+
+    h1 span { color: #c0392b; }
+
+    .sub {
+      font-size: 0.95rem;
+      color: #555;
+      margin: 0;
+    }
+
+    .legend {
+      display: flex;
+      gap: 1.25rem;
+      font-size: 0.8rem;
+      color: #555;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .legend span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 2px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .chart {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      align-items: center;
+      gap: 12px;
+      padding: 5px 8px;
+      border-radius: 6px;
+      transition: background 0.15s;
+      cursor: default;
+    }
+
+    .row:hover { background: #f0ece6; }
+    .row:hover .bar { opacity: 0.85; }
+
+    .label {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: #333;
+      text-align: right;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bar {
+      height: 18px;
+      border-radius: 3px;
+      min-width: 3px;
+      transition: opacity 0.15s;
+    }
+
+    .val {
+      font-size: 0.78rem;
+      color: #555;
+      white-space: nowrap;
+      min-width: 70px;
+    }
+
+    footer {
+      margin-top: 2.5rem;
+      font-size: 0.75rem;
+      color: #aaa;
+      border-top: 1px solid #e0ddd8;
+      padding-top: 1rem;
+    }
+
+    @media (max-width: 600px) {
+      .row { grid-template-columns: 140px 1fr; }
+      .label { font-size: 0.72rem; }
+      h1 { font-size: 1.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <p class="eyebrow">Kementerian Agama RI · 2016</p>
+      <h1>Jumlah Pernikahan<br /><span>per Provinsi</span></h1>
+      <p class="sub" id="subtitle"></p>
+    </header>
+
+    <div class="legend">
+      <span><span class="dot" style="background:#c0392b"></span>≥ 200.000</span>
+      <span><span class="dot" style="background:#e67e22"></span>80.000 – 200.000</span>
+      <span><span class="dot" style="background:#2980b9"></span>40.000 – 80.000</span>
+      <span><span class="dot" style="background:#27ae60"></span>&lt; 40.000</span>
+    </div>
+
+    <div class="chart" id="chart"></div>
+
+    <footer>Sumber: BPS — Statistik Indonesia 2016</footer>
+  </div>
+
+  <script>
+    const raw = [
+      { provinsi: "ACEH", nikah: 42482 },
+      { provinsi: "SUMATERA UTARA", nikah: 81946 },
+      { provinsi: "SUMATERA BARAT", nikah: 42026 },
+      { provinsi: "RIAU", nikah: 40084 },
+      { provinsi: "JAMBI", nikah: 24961 },
+      { provinsi: "SUMATERA SELATAN", nikah: 59606 },
+      { provinsi: "BENGKULU", nikah: 14826 },
+      { provinsi: "LAMPUNG", nikah: 63228 },
+      { provinsi: "KEP. BANGKA BELITUNG", nikah: 7948 },
+      { provinsi: "KEP. RIAU", nikah: 12376 },
+      { provinsi: "DKI JAKARTA", nikah: 54696 },
+      { provinsi: "JAWA BARAT", nikah: 386242 },
+      { provinsi: "JAWA TENGAH", nikah: 300911 },
+      { provinsi: "DI YOGYAKARTA", nikah: 22053 },
+      { provinsi: "JAWA TIMUR", nikah: 306963 },
+      { provinsi: "BANTEN", nikah: 83543 },
+      { provinsi: "BALI", nikah: 3088 },
+      { provinsi: "NUSA TENGGARA BARAT", nikah: 42818 },
+      { provinsi: "NUSA TENGGARA TIMUR", nikah: 3499 },
+      { provinsi: "KALIMANTAN BARAT", nikah: 23340 },
+      { provinsi: "KALIMANTAN TENGAH", nikah: 14609 },
+      { provinsi: "KALIMANTAN SELATAN", nikah: 25178 },
+      { provinsi: "KALIMANTAN TIMUR", nikah: 26160 },
+      { provinsi: "SULAWESI UTARA", nikah: 6881 },
+      { provinsi: "SULAWESI TENGAH", nikah: 18549 },
+      { provinsi: "SULAWESI SELATAN", nikah: 75075 },
+      { provinsi: "SULAWESI TENGGARA", nikah: 16865 },
+      { provinsi: "GORONTALO", nikah: 9148 },
+      { provinsi: "SULAWESI BARAT", nikah: 8204 },
+      { provinsi: "MALUKU", nikah: 6185 },
+      { provinsi: "MALUKU UTARA", nikah: 7127 },
+      { provinsi: "PAPUA BARAT", nikah: 2748 },
+      { provinsi: "PAPUA", nikah: 3820 },
+    ];
+
+    const data = [...raw].sort((a, b) => b.nikah - a.nikah);
+    const max = data[0].nikah;
+    const total = data.reduce((s, d) => s + d.nikah, 0);
+
+    function fmt(n) {
+      return n.toLocaleString("id-ID");
+    }
+
+    function barColor(n) {
+      if (n >= 200000) return "#c0392b";
+      if (n >= 80000)  return "#e67e22";
+      if (n >= 40000)  return "#2980b9";
+      return "#27ae60";
+    }
+
+    document.getElementById("subtitle").innerHTML =
+      data.length + " provinsi &nbsp;·&nbsp; Total <strong>" + fmt(total) + "</strong> pasangan nikah";
+
+    const chart = document.getElementById("chart");
+
+    data.forEach(d => {
+      const pct = ((d.nikah / max) * 100).toFixed(1);
+
+      const row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML = `
+        <div class="label" title="${d.provinsi}">${d.provinsi}</div>
+        <div class="bar-wrap">
+          <div class="bar" style="width:${pct}%; background:${barColor(d.nikah)};"></div>
+          <span class="val">${fmt(d.nikah)}</span>
+        </div>
+      `;
+      chart.appendChild(row);
+    });
+  </script>
+</body>
+</html>
